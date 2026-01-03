@@ -1,0 +1,12 @@
+{
+  "version": 4,
+  "configurations": [
+    {
+      "name": "ESP-IDF",
+      "compilerPath": "/{Local Espressif Location}/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20241119/xtensa-esp-elf/bin/xtensa-esp32-elf-gcc",
+      "compileCommands": "${workspaceFolder}/build/compile_commands.json",
+      "intelliSenseMode": "gcc-x64",
+      "cStandard": "c17"
+    }
+  ]
+}
