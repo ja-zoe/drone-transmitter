@@ -1,6 +1,6 @@
 typedef enum {
-  SW_ACTIVATED,
-  SW_DEACTIVATED,
+  SW_OFF,
+  SW_ON,
   SW_MID
 } switch_state_t;
 
@@ -13,4 +13,4 @@ typedef enum {
   SW_POWER
 } switch_id_t;
 
-switch_state_t get_switch_state(switch_id_t switch_id);
+esp_err_t get_switch_states(switch_state_t switch_states[5]);
