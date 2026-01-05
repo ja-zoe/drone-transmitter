@@ -11,8 +11,6 @@
 #define PIN_SP3T_RL 4
 #define PIN_ARM_DISARM 1
 
-esp_err_t esp_ret;
-
 esp_err_t configure_gpio_inputs() {
   uint64_t pin_mask = (1ULL << PIN_SPDT_L) |
                       (1ULL << PIN_SPDT_R) |
@@ -28,11 +26,12 @@ esp_err_t configure_gpio_inputs() {
     .pull_down_en = GPIO_PULLDOWN_ENABLE
   };
 
-  esp_ret = gpio_config(&config);
-  ESP_ERR_CHECK(esp_ret);
+  esp_err_t esp_ret = gpio_config(&config);
+  ESP_ERROR_CHECK(esp_ret);
+  return ESP_OK;
 };
 
-esp_err_t get_switch_states(switch_state_t switch_states[5]) {
+void get_switch_states(switch_state_t switch_states[5]) {
   // Arm Disarm (Index 0) 
   switch_states[SW_ARM_DISARM] = gpio_get_level(PIN_ARM_DISARM) ? SW_ON : SW_OFF;
   
@@ -63,6 +62,4 @@ esp_err_t get_switch_states(switch_state_t switch_states[5]) {
   } else {
       switch_states[SW_SP3T_R] = SW_MID;     // Middle position
   }
-  
-  return ESP_OK;
 };
