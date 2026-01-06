@@ -31,7 +31,7 @@ esp_err_t configure_gpio_inputs() {
   return ESP_OK;
 };
 
-void get_switch_states(switch_state_t switch_states[5]) {
+void get_switch_states(uint8_t switch_states[5]) {
   // Arm Disarm (Index 0) 
   switch_states[SW_ARM_DISARM] = gpio_get_level(PIN_ARM_DISARM) ? SW_ON : SW_OFF;
   
