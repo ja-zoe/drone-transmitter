@@ -11,6 +11,9 @@
 #include "esp_now.h"
 #include "esp_crc.h"
 
+#include "joysticks.h"
+#include "i2cdev.h"
+
 static void wifi_init(void)
 {
     ESP_ERROR_CHECK(esp_netif_init());
@@ -44,7 +47,7 @@ void app_main(void)
       ESP_ERROR_CHECK( nvs_flash_erase() );
       ret = nvs_flash_init();
   }
-  ESP_ERROR_CHECK( ret );
+  ESP_ERROR_CHECK(ret);
 
   /*---- Initialize WiFi ----*/ 
   wifi_init();
@@ -53,6 +56,16 @@ void app_main(void)
   ESP_ERROR_CHECK( esp_now_init() );
   ESP_ERROR_CHECK( esp_now_register_send_cb(espnow_send_cb) );
   // ESP_ERROR_CHECK( esp_now_register_recv_cb(example_espnow_recv_cb) );
+
+  /*---- Initialize I2C ----*/
+  ESP_ERROR_CHECK(i2cdev_init());
+
+  /*---- Configure switch gpios as internal pull down inputs ----*/
+  ret = configure_gpio_inputs();
+  ESP_ERROR_CHECK(ret);
+
+  /*---- Initialize ADS1115 ----*/
+  init_ads1115();
 
   /*---- Add esp-now peers ----*/ 
   esp_now_peer_info_t peer_info = {
@@ -63,14 +76,13 @@ void app_main(void)
   ret = esp_now_add_peer(&peer_info);
   ESP_ERROR_CHECK(ret);
 
-  /*----  Configure switch gpios as internal pull down inputs----*/
-  ret = configure_gpio_inputs();
-  ESP_ERROR_CHECK(ret);
-
   uint8_t switch_states[5] = {0};
+  joysticks_values_t joysticks;
   while(1) {
-    get_switch_states(switch_states);
-    esp_now_send(NULL, switch_states, sizeof(switch_states));
+    // get_switch_states(switch_states);
+    // esp_now_send(NULL, switch_states, sizeof(switch_states));
+    get_joysticks_values(&joysticks);
+    printf("lx: %i\nly: %i\nrx: %i\nry: %i\n", joysticks.lx, joysticks.ly, joysticks.rx, joysticks.ry);
     vTaskDelay(pdMS_TO_TICKS(200));
   };
 }
