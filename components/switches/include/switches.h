@@ -16,7 +16,7 @@ typedef struct {
   gpio_num_t PIN_SP3T_LL;
   gpio_num_t PIN_SP3T_RH;
   gpio_num_t PIN_SP3T_RL;
-  gpio_num_t PIN_ARM_DISARM
+  gpio_num_t PIN_ARM_DISARM;
 } switch_gpio_config_t;
 
 typedef struct {

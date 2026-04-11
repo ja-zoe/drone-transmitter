@@ -121,7 +121,7 @@ void app_main(void)
   TaskHandle_t transmitTaskHandle = NULL;
   static StaticTask_t transmitTaskBuffer;
   static StackType_t transmitTaskStack[ TRANSMIT_TASK_STACK_SIZE ];
-  inputTaskHandle = xTaskCreateStatic(
+  transmitTaskHandle = xTaskCreateStatic(
                 dataTransmitTask,      /* Function that implements the task. */
                 "Data-Transmit-Task",  /* Text name for the task. */
                 TRANSMIT_TASK_STACK_SIZE,         /* Number of indexes in the xStack array. */
@@ -134,7 +134,7 @@ void app_main(void)
   TaskHandle_t dataReceiveTaskHandle = NULL;
   static StaticTask_t dataReceiveTaskBuffer;
   static StackType_t dataReceiveTaskStack[ RECEIVE_TASK_STACK_SIZE ];
-  inputTaskHandle = xTaskCreateStatic(
+  dataReceiveTaskHandle = xTaskCreateStatic(
                 dataReceiveTask,      /* Function that implements the task. */
                 "Input-Read-Task",  /* Text name for the task. */
                 RECEIVE_TASK_STACK_SIZE,         /* Number of indexes in the xStack array. */
@@ -147,13 +147,13 @@ void app_main(void)
   TaskHandle_t oledTaskHandle = NULL;
   static StaticTask_t oledTaskBuffer;
   static StackType_t oledTaskStack[ OLED_TASK_STACK_SIZE ];
-  inputTaskHandle = xTaskCreateStatic(
+  oledTaskHandle = xTaskCreateStatic(
                 oledUpdateTask,      /* Function that implements the task. */
                 "OLED-Update-Task",  /* Text name for the task. */
                 OLED_TASK_STACK_SIZE,         /* Number of indexes in the xStack array. */
                 &telemetryAndLock,       /* Parameter passed into the task. */
                 tskIDLE_PRIORITY,   /* Priority at which the task is created. */
                 oledTaskStack,     /* Array to use as the task's stack. */
-                &inputTaskBuffer ); /* Variable to hold the task's data structure. */
+                &oledTaskBuffer ); /* Variable to hold the task's data structure. */
   configASSERT(oledTaskHandle);
 }
