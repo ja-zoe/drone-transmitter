@@ -1,4 +1,7 @@
+#pragma once
+
 #include "esp_err.h"
+#include "driver/gpio.h"
 
 enum SwitchState {
   SW_OFF = 0,
@@ -6,14 +9,24 @@ enum SwitchState {
   SW_MID = 2
 };
 
-enum switch_id_t {
-  SW_ARM_DISARM = 0,
-  SW_SPDT_L     = 1,
-  SW_SPDT_R     = 2,
-  SW_SP3T_L     = 3,
-  SW_SP3T_R     = 4
-};
+typedef struct {
+  gpio_num_t PIN_SPDT_L; 
+  gpio_num_t PIN_SPDT_R; 
+  gpio_num_t PIN_SP3T_LH;
+  gpio_num_t PIN_SP3T_LL;
+  gpio_num_t PIN_SP3T_RH;
+  gpio_num_t PIN_SP3T_RL;
+  gpio_num_t PIN_ARM_DISARM
+} switch_gpio_config_t;
 
-void get_switch_states(uint8_t switch_states[5]);
+typedef struct {
+  uint8_t arm_disarm;
+  uint8_t spdt_l;
+  uint8_t spdt_r;
+  uint8_t sp3t_l;
+  uint8_t sp3t_r;
+} switch_states_t;
 
-esp_err_t configure_gpio_inputs();
+void get_switch_states(switch_states_t *switch_states);
+
+void configure_gpio_inputs(const switch_gpio_config_t *switch_gpio_config);

@@ -68,10 +68,10 @@ dependencies:
   idf:
     source:
       type: idf
-    version: 5.5.1
+    version: 6.0.0
 direct_dependencies:
 - esp-idf-lib/ads111x
 - idf
 manifest_hash: 374d8bce8b170d68abc13f3d4c5ac72745d8440609a99a9f621fb40436fcb9ee
 target: esp32s3
-version: 2.0.0
+version: 3.0.0
