@@ -67,13 +67,13 @@ void app_main(void)
     // Chose to configure GPIOS here instead of input read task because it should be guaranteed
     // that the gpios are configured before the 
   switch_gpio_config_t switch_gpio_config = {
-    .PIN_SPDT_L = 43,
-    .PIN_SPDT_R = 2,
-    .PIN_SP3T_LH = 44,
-    .PIN_SP3T_LL = 7,
-    .PIN_SP3T_RH = 3,
-    .PIN_SP3T_RL = 4,
-    .PIN_ARM_DISARM = 1
+    .PIN_SPDT_L = 2,
+    .PIN_SPDT_R = 9,
+    .PIN_SP3T_LH = 4,
+    .PIN_SP3T_LL = 43,
+    .PIN_SP3T_RH = 8,
+    .PIN_SP3T_RL = 7,
+    .PIN_ARM_DISARM = 44
   };
   configure_gpio_inputs(&switch_gpio_config);
 
@@ -104,16 +104,16 @@ void app_main(void)
   configASSERT(telemetryPacketMutexHandle);
   
   /*---- Start Tasks ----*/
-  #define INPUT_TASK_STACK_SIZE 100
-  #define TRANSMIT_TASK_STACK_SIZE 100
-  #define RECEIVE_TASK_STACK_SIZE 100
-  #define OLED_TASK_STACK_SIZE 100
+  #define INPUT_TASK_STACK_SIZE 2048
+  #define TRANSMIT_TASK_STACK_SIZE 4096
+  #define RECEIVE_TASK_STACK_SIZE 4096
+  #define OLED_TASK_STACK_SIZE 2048
 
     // Input Read Task
-  input_task_params_t input_task_params = {
+  static input_task_params_t input_task_params = {
     .control_packet = &control_packet,
-    .lock = controlPacketMutexHandle,
   };
+  input_task_params.lock = controlPacketMutexHandle;
   TaskHandle_t inputTaskHandle = NULL;
   static StaticTask_t inputTaskBuffer;
   static StackType_t inputTaskStack[ INPUT_TASK_STACK_SIZE ];
@@ -126,12 +126,13 @@ void app_main(void)
                 inputTaskStack,     /* Array to use as the task's stack. */
                 &inputTaskBuffer ); /* Variable to hold the task's data structure. */
   configASSERT(inputTaskHandle);
-    // Data Transmit Task
-  transmit_task_params_t transmit_task_params = {
+    
+  // Data Transmit Task
+  static transmit_task_params_t transmit_task_params = {
     .control_packet = &control_packet,
-    .lock = controlPacketMutexHandle,
-    .des_addr = peer_info.peer_addr,
   };
+  transmit_task_params.lock = controlPacketMutexHandle;
+  transmit_task_params.des_addr = peer_info.peer_addr;
   TaskHandle_t transmitTaskHandle = NULL;
   static StaticTask_t transmitTaskBuffer;
   static StackType_t transmitTaskStack[ TRANSMIT_TASK_STACK_SIZE ];
@@ -144,12 +145,13 @@ void app_main(void)
                 transmitTaskStack,     /* Array to use as the task's stack. */
                 &transmitTaskBuffer ); /* Variable to hold the task's data structure. */
   configASSERT(transmitTaskHandle);
-    // Data Receive Task
-  receive_task_params_t receive_task_params = {
+    
+  // Data Receive Task
+  static receive_task_params_t receive_task_params = {
     .telemetry_packet = &telemetry_packet,
-    .lock = controlPacketMutexHandle,
-    .des_addr = peer_info.peer_addr,
   };
+  receive_task_params.lock = telemetryPacketMutexHandle;
+  receive_task_params.des_addr = peer_info.peer_addr;
   TaskHandle_t dataReceiveTaskHandle = NULL;
   static StaticTask_t dataReceiveTaskBuffer;
   static StackType_t dataReceiveTaskStack[ RECEIVE_TASK_STACK_SIZE ];
@@ -162,11 +164,12 @@ void app_main(void)
                 dataReceiveTaskStack,     /* Array to use as the task's stack. */
                 &dataReceiveTaskBuffer ); /* Variable to hold the task's data structure. */
   configASSERT(dataReceiveTaskHandle);
-    // OLED Update Task
-  oled_task_params_t oled_task_params = {
+    
+  // OLED Update Task
+  static oled_task_params_t oled_task_params = {
     .telemetry_packet = &telemetry_packet,
-    .lock = controlPacketMutexHandle,
   };
+  oled_task_params.lock = telemetryPacketMutexHandle;
   TaskHandle_t oledTaskHandle = NULL;
   static StaticTask_t oledTaskBuffer;
   static StackType_t oledTaskStack[ OLED_TASK_STACK_SIZE ];

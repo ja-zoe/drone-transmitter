@@ -2,6 +2,7 @@
 
 #include "esp_err.h"
 #include "driver/gpio.h"
+#include "drone_common.h"
 
 enum SwitchState {
   SW_OFF = 0,
@@ -18,14 +19,6 @@ typedef struct {
   gpio_num_t PIN_SP3T_RL;
   gpio_num_t PIN_ARM_DISARM;
 } switch_gpio_config_t;
-
-typedef struct {
-  uint8_t arm_disarm;
-  uint8_t spdt_l;
-  uint8_t spdt_r;
-  uint8_t sp3t_l;
-  uint8_t sp3t_r;
-} switch_states_t;
 
 void get_switch_states(switch_states_t *switch_states);
 

@@ -21,6 +21,7 @@ void dataTransmitTask( void *pvParameters ) {
   while(1){
     if (xSemaphoreTake(data->lock, pdMS_TO_TICKS(3)) == pdFALSE) {
       lock_fail_count++;
+      ESP_LOGI(TAG, "Failed to take mutex on attempt %u", lock_fail_count);
       continue;
     }
 
@@ -31,5 +32,6 @@ void dataTransmitTask( void *pvParameters ) {
     if (ret != ESP_OK) {
       ESP_LOGE(TAG, "Error transmitting control data: %s", esp_err_to_name(ret));
     }
+    vTaskDelay(pdMS_TO_TICKS(5));
   };
 };

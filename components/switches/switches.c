@@ -14,22 +14,32 @@ void configure_gpio_inputs(const switch_gpio_config_t *switch_gpio_config) {
   switch_gpio_config_global.PIN_SP3T_RL = switch_gpio_config->PIN_SP3T_RL;
   switch_gpio_config_global.PIN_ARM_DISARM = switch_gpio_config->PIN_ARM_DISARM;
 
+  // Configure pulled down gpio pins
   uint64_t pin_mask = (1ULL << switch_gpio_config_global.PIN_SPDT_L) |
                       (1ULL << switch_gpio_config_global.PIN_SPDT_R) |
                       (1ULL << switch_gpio_config_global.PIN_SP3T_LH) |
                       (1ULL << switch_gpio_config_global.PIN_SP3T_LL) |
                       (1ULL << switch_gpio_config_global.PIN_SP3T_RH) |
-                      (1ULL << switch_gpio_config_global.PIN_SP3T_RL) |
-                      (1ULL << switch_gpio_config_global.PIN_ARM_DISARM);
+                      (1ULL << switch_gpio_config_global.PIN_SP3T_RL);
 
-  gpio_config_t config = {
+  gpio_config_t config_pulldown = {
     .pin_bit_mask = pin_mask,
     .mode = GPIO_MODE_INPUT,
     .pull_down_en = GPIO_PULLDOWN_ENABLE
   };
+  esp_err_t ret = gpio_config(&config_pulldown);
+  ESP_ERROR_CHECK(ret);
 
-  esp_err_t esp_ret = gpio_config(&config);
-  ESP_ERROR_CHECK(esp_ret);
+  //Configure pulled up gpio pins
+  pin_mask = (1ULL << switch_gpio_config_global.PIN_ARM_DISARM);
+  gpio_config_t config_pullup = {
+    .pin_bit_mask = pin_mask,
+    .mode = GPIO_MODE_INPUT,
+    .pull_up_en = GPIO_PULLUP_ENABLE
+  };
+  ret = gpio_config(&config_pullup);
+  ESP_ERROR_CHECK(ret);
+
 };
 
 void get_switch_states(switch_states_t *switch_states) {
