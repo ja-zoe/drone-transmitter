@@ -64,6 +64,8 @@ void app_main(void)
   ESP_ERROR_CHECK(i2cdev_init());
 
   /*---- Configure GPIOs ----*/
+    // Chose to configure GPIOS here instead of input read task because it should be guaranteed
+    // that the gpios are configured before the 
   switch_gpio_config_t switch_gpio_config = {
     .PIN_SPDT_L = 43,
     .PIN_SPDT_R = 2,
@@ -88,15 +90,18 @@ void app_main(void)
   ESP_ERROR_CHECK(ret);
 
   /*---- Create Shared Resources ----*/
-  static control_packet_mutex_t dataAndLock;
+  static control_packet_t control_packet;
+  static telemetry_packet_t telemetry_packet;
+
+  static SemaphoreHandle_t controlPacketMutexHandle;
   static StaticSemaphore_t controlPacketMutexBuffer;
-  dataAndLock.lock = xSemaphoreCreateMutexStatic( &controlPacketMutexBuffer );
-  configASSERT(dataAndLock.lock);
+  controlPacketMutexHandle = xSemaphoreCreateMutexStatic( &controlPacketMutexBuffer );
+  configASSERT(controlPacketMutexHandle);
   
-  static telemetry_packet_mutex_t telemetryAndLock;
+  static SemaphoreHandle_t telemetryPacketMutexHandle;
   static StaticSemaphore_t telemetryPacketMutexBuffer;
-  telemetryAndLock.lock = xSemaphoreCreateMutexStatic( &telemetryPacketMutexBuffer );
-  configASSERT(dataAndLock.lock);
+  telemetryPacketMutexHandle = xSemaphoreCreateMutexStatic( &telemetryPacketMutexBuffer );
+  configASSERT(telemetryPacketMutexHandle);
   
   /*---- Start Tasks ----*/
   #define INPUT_TASK_STACK_SIZE 100
@@ -105,6 +110,10 @@ void app_main(void)
   #define OLED_TASK_STACK_SIZE 100
 
     // Input Read Task
+  input_task_params_t input_task_params = {
+    .control_packet = &control_packet,
+    .lock = controlPacketMutexHandle,
+  };
   TaskHandle_t inputTaskHandle = NULL;
   static StaticTask_t inputTaskBuffer;
   static StackType_t inputTaskStack[ INPUT_TASK_STACK_SIZE ];
@@ -112,12 +121,17 @@ void app_main(void)
                 inputReadTask,      /* Function that implements the task. */
                 "Input-Read-Task",  /* Text name for the task. */
                 INPUT_TASK_STACK_SIZE,         /* Number of indexes in the xStack array. */
-                &dataAndLock,       /* Parameter passed into the task. */
+                &input_task_params,       /* Parameter passed into the task. */
                 tskIDLE_PRIORITY,   /* Priority at which the task is created. */
                 inputTaskStack,     /* Array to use as the task's stack. */
                 &inputTaskBuffer ); /* Variable to hold the task's data structure. */
   configASSERT(inputTaskHandle);
     // Data Transmit Task
+  transmit_task_params_t transmit_task_params = {
+    .control_packet = &control_packet,
+    .lock = controlPacketMutexHandle,
+    .des_addr = peer_info.peer_addr,
+  };
   TaskHandle_t transmitTaskHandle = NULL;
   static StaticTask_t transmitTaskBuffer;
   static StackType_t transmitTaskStack[ TRANSMIT_TASK_STACK_SIZE ];
@@ -125,12 +139,17 @@ void app_main(void)
                 dataTransmitTask,      /* Function that implements the task. */
                 "Data-Transmit-Task",  /* Text name for the task. */
                 TRANSMIT_TASK_STACK_SIZE,         /* Number of indexes in the xStack array. */
-                &dataAndLock,       /* Parameter passed into the task. */
+                &transmit_task_params,       /* Parameter passed into the task. */
                 tskIDLE_PRIORITY,   /* Priority at which the task is created. */
                 transmitTaskStack,     /* Array to use as the task's stack. */
                 &transmitTaskBuffer ); /* Variable to hold the task's data structure. */
   configASSERT(transmitTaskHandle);
     // Data Receive Task
+  receive_task_params_t receive_task_params = {
+    .telemetry_packet = &telemetry_packet,
+    .lock = controlPacketMutexHandle,
+    .des_addr = peer_info.peer_addr,
+  };
   TaskHandle_t dataReceiveTaskHandle = NULL;
   static StaticTask_t dataReceiveTaskBuffer;
   static StackType_t dataReceiveTaskStack[ RECEIVE_TASK_STACK_SIZE ];
@@ -138,12 +157,16 @@ void app_main(void)
                 dataReceiveTask,      /* Function that implements the task. */
                 "Input-Read-Task",  /* Text name for the task. */
                 RECEIVE_TASK_STACK_SIZE,         /* Number of indexes in the xStack array. */
-                &telemetryAndLock,       /* Parameter passed into the task. */
+                &receive_task_params,       /* Parameter passed into the task. */
                 tskIDLE_PRIORITY,   /* Priority at which the task is created. */
                 dataReceiveTaskStack,     /* Array to use as the task's stack. */
                 &dataReceiveTaskBuffer ); /* Variable to hold the task's data structure. */
   configASSERT(dataReceiveTaskHandle);
     // OLED Update Task
+  oled_task_params_t oled_task_params = {
+    .telemetry_packet = &telemetry_packet,
+    .lock = controlPacketMutexHandle,
+  };
   TaskHandle_t oledTaskHandle = NULL;
   static StaticTask_t oledTaskBuffer;
   static StackType_t oledTaskStack[ OLED_TASK_STACK_SIZE ];
@@ -151,7 +174,7 @@ void app_main(void)
                 oledUpdateTask,      /* Function that implements the task. */
                 "OLED-Update-Task",  /* Text name for the task. */
                 OLED_TASK_STACK_SIZE,         /* Number of indexes in the xStack array. */
-                &telemetryAndLock,       /* Parameter passed into the task. */
+                &oled_task_params,       /* Parameter passed into the task. */
                 tskIDLE_PRIORITY,   /* Priority at which the task is created. */
                 oledTaskStack,     /* Array to use as the task's stack. */
                 &oledTaskBuffer ); /* Variable to hold the task's data structure. */
