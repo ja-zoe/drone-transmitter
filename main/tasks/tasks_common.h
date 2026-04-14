@@ -24,7 +24,7 @@ typedef struct {
   uint8_t *des_addr;
 } receive_task_params_t;
 
-
+/*----- Task function definitions -----*/
 void inputReadTask( void *pvParameters);
 void dataTransmitTask( void *pvParameters );
 void dataReceiveTask( void *pvParameters );
