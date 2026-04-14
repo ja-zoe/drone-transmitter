@@ -2,25 +2,16 @@
 #include "switches.h"
 #include "driver/gpio.h"
 #include "esp_err.h"
+#include "setup.h"
 
-static switch_gpio_config_t switch_gpio_config_global;
-
-void configure_gpio_inputs(const switch_gpio_config_t *switch_gpio_config) {
-  switch_gpio_config_global.PIN_SPDT_L = switch_gpio_config->PIN_SPDT_L;
-  switch_gpio_config_global.PIN_SPDT_R = switch_gpio_config->PIN_SPDT_R;
-  switch_gpio_config_global.PIN_SP3T_LH = switch_gpio_config->PIN_SP3T_LH;
-  switch_gpio_config_global.PIN_SP3T_LL = switch_gpio_config->PIN_SP3T_LL;
-  switch_gpio_config_global.PIN_SP3T_RH = switch_gpio_config->PIN_SP3T_RH;
-  switch_gpio_config_global.PIN_SP3T_RL = switch_gpio_config->PIN_SP3T_RL;
-  switch_gpio_config_global.PIN_ARM_DISARM = switch_gpio_config->PIN_ARM_DISARM;
-
+void configure_gpio_inputs() {
   // Configure pulled down gpio pins
-  uint64_t pin_mask = (1ULL << switch_gpio_config_global.PIN_SPDT_L) |
-                      (1ULL << switch_gpio_config_global.PIN_SPDT_R) |
-                      (1ULL << switch_gpio_config_global.PIN_SP3T_LH) |
-                      (1ULL << switch_gpio_config_global.PIN_SP3T_LL) |
-                      (1ULL << switch_gpio_config_global.PIN_SP3T_RH) |
-                      (1ULL << switch_gpio_config_global.PIN_SP3T_RL);
+  uint64_t pin_mask = (1ULL << PIN_SPDT_L_CONF) |
+                      (1ULL << PIN_SPDT_R_CONF) |
+                      (1ULL << PIN_SP3T_LH_CONF) |
+                      (1ULL << PIN_SP3T_LL_CONF) |
+                      (1ULL << PIN_SP3T_RH_CONF) |
+                      (1ULL << PIN_SP3T_RL_CONF);
 
   gpio_config_t config_pulldown = {
     .pin_bit_mask = pin_mask,
@@ -31,7 +22,7 @@ void configure_gpio_inputs(const switch_gpio_config_t *switch_gpio_config) {
   ESP_ERROR_CHECK(ret);
 
   //Configure pulled up gpio pins
-  pin_mask = (1ULL << switch_gpio_config_global.PIN_ARM_DISARM);
+  pin_mask = (1ULL << PIN_ARM_DISARM_CONF);
   gpio_config_t config_pullup = {
     .pin_bit_mask = pin_mask,
     .mode = GPIO_MODE_INPUT,
@@ -44,17 +35,17 @@ void configure_gpio_inputs(const switch_gpio_config_t *switch_gpio_config) {
 
 void get_switch_states(switch_states_t *switch_states) {
   // Arm Disarm (Index 0) 
-  switch_states->arm_disarm = gpio_get_level(switch_gpio_config_global.PIN_ARM_DISARM) ? SW_ON : SW_OFF;
+  switch_states->arm_disarm = gpio_get_level(PIN_ARM_DISARM_CONF) ? SW_ON : SW_OFF;
   
   // Left SPDT (Index 1)
-  switch_states->spdt_l = gpio_get_level(switch_gpio_config_global.PIN_SPDT_L) ? SW_ON : SW_OFF;
+  switch_states->spdt_l = gpio_get_level(PIN_SPDT_L_CONF) ? SW_ON : SW_OFF;
   
   // Right SPDT (Index 2)
-  switch_states->spdt_r = gpio_get_level(switch_gpio_config_global.PIN_SPDT_R) ? SW_ON : SW_OFF;
+  switch_states->spdt_r = gpio_get_level(PIN_SPDT_R_CONF) ? SW_ON : SW_OFF;
   
   // Left SP3T (Index 3) - 3-position switch
-  int lh = gpio_get_level(switch_gpio_config_global.PIN_SP3T_LH);
-  int ll = gpio_get_level(switch_gpio_config_global.PIN_SP3T_LL);
+  int lh = gpio_get_level(PIN_SP3T_LH_CONF);
+  int ll = gpio_get_level(PIN_SP3T_LL_CONF);
   if (lh && !ll) {
       switch_states->sp3t_l = SW_ON;      // High position
   } else if (!lh && ll) {
@@ -64,8 +55,8 @@ void get_switch_states(switch_states_t *switch_states) {
   }
   
   // Right SP3T (Index 4) - 3-position switch
-  int rh = gpio_get_level(switch_gpio_config_global.PIN_SP3T_RH);
-  int rl = gpio_get_level(switch_gpio_config_global.PIN_SP3T_RL);
+  int rh = gpio_get_level(PIN_SP3T_RH_CONF);
+  int rl = gpio_get_level(PIN_SP3T_RL_CONF);
   if (rh && !rl) {
       switch_states->sp3t_r = SW_ON;      // High position
   } else if (!rh && rl) {
