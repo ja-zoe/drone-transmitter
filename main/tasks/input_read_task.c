@@ -29,6 +29,6 @@ void inputReadTask( void *pvParameters) {
 
     *(data->control_packet) = control_packet;
     xSemaphoreGive(data->lock);
-    vTaskDelay(pdMS_TO_TICKS(60));
+    vTaskDelay(pdMS_TO_TICKS(20));
   }
 };
