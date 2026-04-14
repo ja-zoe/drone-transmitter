@@ -1,25 +1,15 @@
 #include <stdio.h>
 #include "freertos/FreeRTOS.h"
-
-#include "esp_event.h"
-#include "esp_netif.h"
-#include "esp_log.h"
-#include "esp_mac.h"
-#include "esp_crc.h"
-
 #include "joysticks.h"
 #include "switches.h"
 #include "tasks_common.h"
-#include "i2cdev.h"
 
 #include "switches.h"
 #include "setup.h"
 #include "espnow.h"
 
 void app_main(void)
-{
-  esp_err_t ret;
-  
+{  
 /*---- Initialize nvs memory for persistent wifi credentials ----*/ 
   nvs_init();
 /*---- Initialize WiFi ----*/ 
@@ -27,7 +17,9 @@ void app_main(void)
 /*---- Initialize ESPNOW ----*/ 
   init_espnow();
 /*---- Initialize I2C ----*/
-  ESP_ERROR_CHECK(i2cdev_init());
+  i2c_init();
+/*---- Initialize OLED ----*/
+  oled_init();
 /*---- Configure GPIOs ----*/
   switch_gpio_config_t switch_gpio_config = {
     .PIN_SPDT_L = PIN_SPDT_L_CONF,
@@ -40,7 +32,7 @@ void app_main(void)
   };
   configure_gpio_inputs(&switch_gpio_config);
 /*---- Initialize ADS1115 ----*/
-  init_ads1115(SDA_GPIO_CONF, SCL_GPIO_CONF, ADS111X_DATA_RATE_128);
+  init_ads1115();
 
 /*---- Create Shared Resources ----*/
   static control_packet_t control_packet;

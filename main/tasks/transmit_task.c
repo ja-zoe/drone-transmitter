@@ -1,3 +1,4 @@
+#include "freertos/FreeRTOS.h"
 #include "joysticks.h"
 #include "switches.h"
 #include "tasks_common.h"

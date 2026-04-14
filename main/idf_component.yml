@@ -14,4 +14,5 @@ dependencies:
   #   # `public` flag doesn't have an effect dependencies of the `main` component.
   #   # All dependencies of `main` are public by default.
   #   public: true
-  esp-idf-lib/ads111x: '*'
+  espressif/esp_lvgl_port: ^2.7.2
+  bammer187/ads1115: ^1.0.1
