@@ -25,6 +25,10 @@
 
 /* ADS115 (Joystick ADC) Config */
 #define ADS_I2C_FREQ_CONF (400 * 1000)
+#define THROTTLE_MUX_CONF 0
+#define YAW_MUX_CONF 1
+#define PITCH_MUX_CONF 2
+#define ROLL_MUX_CONF 3
 
 /* Task Config */
 #define INPUT_TASK_STACK_SIZE 2048

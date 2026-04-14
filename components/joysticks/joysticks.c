@@ -19,8 +19,8 @@ void init_ads1115()
 
 void get_joysticks_values(joysticks_values_t *values) 
 {  
-  values->throttle = ads1115_get_raw(&ads, 0);
-  values->roll = ads1115_get_raw(&ads, 1);
-  values->pitch = ads1115_get_raw(&ads, 2);
-  values->yaw = ads1115_get_raw(&ads, 3);
+  values->throttle = ads1115_get_raw(&ads, THROTTLE_MUX_CONF);
+  values->roll = ads1115_get_raw(&ads, ROLL_MUX_CONF);
+  values->pitch = ads1115_get_raw(&ads, PITCH_MUX_CONF);
+  values->yaw = ads1115_get_raw(&ads, YAW_MUX_CONF);
 }

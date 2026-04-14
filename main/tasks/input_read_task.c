@@ -19,7 +19,8 @@ void inputReadTask( void *pvParameters) {
   while (1) {
     get_switch_states(&control_packet.switches_values);
     get_joysticks_values(&control_packet.joysticks_values);
-  
+
+    ESP_LOGI(TAG, "-- %d -- -- %d -- -- %d -- -- %d --", control_packet.joysticks_values.throttle, control_packet.joysticks_values.yaw, control_packet.joysticks_values.pitch, control_packet.joysticks_values.roll);
     if (xSemaphoreTake(data->lock, pdMS_TO_TICKS(3)) == pdFALSE) {
       lock_fail_count++;
       ESP_LOGI(TAG, "Failed to take mutex on attempt %u", lock_fail_count);
@@ -28,5 +29,6 @@ void inputReadTask( void *pvParameters) {
 
     *(data->control_packet) = control_packet;
     xSemaphoreGive(data->lock);
+    vTaskDelay(pdMS_TO_TICKS(60));
   }
 };
