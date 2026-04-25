@@ -18,7 +18,7 @@ void inputReadTask( void *pvParameters) {
 
   while (1) {
     get_switch_states(&control_packet.switches_values);
-    get_joysticks_values(&control_packet.joysticks_values);
+    get_joysticks_calibrated(&control_packet.joysticks_values);
 
     if (xSemaphoreTake(data->lock, pdMS_TO_TICKS(3)) == pdFALSE) {
       lock_fail_count++;

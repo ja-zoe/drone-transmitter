@@ -6,8 +6,14 @@
 #include "driver/i2c_master.h"
 #include "esp_lcd_panel_vendor.h"
 #include "lvgl.h"
+#include "esp_log.h"
+#include "tasks_common.h"
+
+static const char *TAG = "Setup";
 
 i2c_master_bus_handle_t i2c_bus;
+
+static lv_style_t style1;
 
 void nvs_init(void) {
   esp_err_t ret;
@@ -52,13 +58,12 @@ void oled_init(void) {
     esp_lcd_panel_io_i2c_config_t io_config = {
         .dev_addr = OLED_I2C_ADDR_CONF,
         .scl_speed_hz = OLED_FREQ_CONF,
-        .control_phase_bytes = 1, // According to SSD1306 datasheet
-        .lcd_cmd_bits = 8,        // According to SSD1306 datasheet
-        .lcd_param_bits = 8,      // According to SSD1306 datasheet
-        .dc_bit_offset = 6,       // According to SSD1306 datasheet
+        .control_phase_bytes = 1,
+        .lcd_cmd_bits = 8,
+        .lcd_param_bits = 8,
+        .dc_bit_offset = 6,
     };
     ESP_ERROR_CHECK(esp_lcd_new_panel_io_i2c(i2c_bus, &io_config, &io_handle));
-
 
     esp_lcd_panel_handle_t panel_handle = NULL;
     esp_lcd_panel_dev_config_t panel_config = {
@@ -70,9 +75,11 @@ void oled_init(void) {
         .height = OLED_V_RES_CONF,
     };
     panel_config.vendor_config = &ssd1306_config;
+    ESP_LOGI(TAG, "Adding ssd1306 to lvgl panellist");
     ESP_ERROR_CHECK(esp_lcd_new_panel_ssd1306(io_handle, &panel_config, &panel_handle));
     ESP_ERROR_CHECK(esp_lcd_panel_reset(panel_handle));
     ESP_ERROR_CHECK(esp_lcd_panel_init(panel_handle));
+    ESP_ERROR_CHECK(esp_lcd_panel_invert_color(panel_handle, true));
     ESP_ERROR_CHECK(esp_lcd_panel_disp_on_off(panel_handle, true));
 
     const lvgl_port_cfg_t lvgl_cfg = ESP_LVGL_PORT_INIT_CONFIG();
@@ -91,25 +98,20 @@ void oled_init(void) {
             .mirror_y = false,
         },
         .flags = {
-          .sw_rotate = false,
+            .sw_rotate = false,
         }
     };
-    
+    ESP_LOGI(TAG, "Adding display to lvgl");
     lv_disp_t *disp = lvgl_port_add_disp(&disp_cfg);
+    ESP_LOGI(TAG, "Done adding display to lvgl");
 
-    // Lock the mutex due to the LVGL APIs are not thread-safe
+    lv_style_init(&style1);
+    lv_style_set_arc_color(&style1, lv_color_white());
+    lv_style_set_arc_opa(&style1, LV_OPA_COVER);
+
     if (lvgl_port_lock(0)) {
-        /* Rotation of the screen */
-        lv_disp_set_rotation(disp, LV_DISPLAY_ROTATION_180); //
-        
-        lv_obj_t *scr = lv_disp_get_scr_act(disp);
-        lv_obj_t *label = lv_label_create(scr);
-        lv_label_set_long_mode(label, LV_LABEL_LONG_SCROLL_CIRCULAR); /* Circular scroll */
-        lv_label_set_text(label, "Hello Espressif, Hello LVGL.");
-        lv_obj_set_width(label, OLED_H_RES_CONF);
-        lv_obj_align(label, LV_ALIGN_TOP_MID, 0, 0);
-
-        // Release the mutex
+        lv_disp_set_rotation(disp, 2);
+        lv_obj_set_style_bg_color(lv_screen_active(), lv_color_black(), 0);
         lvgl_port_unlock();
     }
 };

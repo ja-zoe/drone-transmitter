@@ -12,4 +12,4 @@ enum SwitchState {
 
 void get_switch_states(switch_states_t *switch_states);
 
-void configure_gpio_inputs();
+void configure_gpio_inputs(void);

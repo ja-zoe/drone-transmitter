@@ -1,55 +1,76 @@
 #include <stdio.h>
 #include "freertos/FreeRTOS.h"
+#include "esp_log.h"
+
 #include "joysticks.h"
 #include "switches.h"
 #include "tasks_common.h"
-
 #include "switches.h"
 #include "setup.h"
 #include "espnow.h"
+#include "calibration.h"
+
+static char *TAG = "main";
+
+// Shared controls packet
+control_packet_t control_packet;
+SemaphoreHandle_t controlPacketMutexHandle;
+
+// Shared telemetry packet
+telemetry_packet_t telemetry_packet;
+SemaphoreHandle_t telemetryPacketMutexHandle;
 
 void app_main(void)
 {  
 /*---- Initialize nvs memory for persistent wifi credentials ----*/ 
+  ESP_LOGI(TAG, "Initializing NVS memory...");
   nvs_init();
+  ESP_LOGI(TAG, "Done initializing NVS memory");
 /*---- Initialize WiFi ----*/ 
+  ESP_LOGI(TAG, "Initializing WIFI...");  
   wifi_init();
+  ESP_LOGI(TAG, "Done initializing WIFI");  
 /*---- Initialize ESPNOW ----*/ 
+  ESP_LOGI(TAG, "Initializing ESPNOW...");  
   init_espnow();
+  ESP_LOGI(TAG, "Done initializing ESPNOW");  
 /*---- Initialize I2C ----*/
+  ESP_LOGI(TAG, "Initializing I2C...");  
   i2c_init();
+  ESP_LOGI(TAG, "Done initializing I2C");  
 /*---- Initialize OLED ----*/
+  ESP_LOGI(TAG, "Initializing OLED...");  
   oled_init();
+  ESP_LOGI(TAG, "Done initializing OLED");  
 /*---- Configure GPIOs ----*/
-  switch_gpio_config_t switch_gpio_config = {
-    .PIN_SPDT_L = PIN_SPDT_L_CONF,
-    .PIN_SPDT_R = PIN_SPDT_R_CONF,
-    .PIN_SP3T_LH = PIN_SP3T_LH_CONF,
-    .PIN_SP3T_LL = PIN_SP3T_LL_CONF,
-    .PIN_SP3T_RH = PIN_SP3T_RH_CONF,
-    .PIN_SP3T_RL = PIN_SP3T_RL_CONF,
-    .PIN_ARM_DISARM = PIN_ARM_DISARM_CONF
-  };
-  configure_gpio_inputs(&switch_gpio_config);
+  ESP_LOGI(TAG, "Initializing GPIOs...");  
+  configure_gpio_inputs();
+  ESP_LOGI(TAG, "Done initializing GPIOs");  
 /*---- Initialize ADS1115 ----*/
+  ESP_LOGI(TAG, "Initializing ADC...");    
   init_ads1115();
+  ESP_LOGI(TAG, "Done initializing ADC");   
+/*---- Initialize ADS1115 ----*/
+  ESP_LOGI(TAG, "Initializing joystick calibration...");    
+  start_calibration_sequence();
+  ESP_LOGI(TAG, "Done initializing joystick calibration");  
 
 /*---- Create Shared Resources ----*/
-  static control_packet_t control_packet;
-  static telemetry_packet_t telemetry_packet;
-
-  static SemaphoreHandle_t controlPacketMutexHandle;
   static StaticSemaphore_t controlPacketMutexBuffer;
   controlPacketMutexHandle = xSemaphoreCreateMutexStatic( &controlPacketMutexBuffer );
   configASSERT(controlPacketMutexHandle);
   
-  static SemaphoreHandle_t telemetryPacketMutexHandle;
   static StaticSemaphore_t telemetryPacketMutexBuffer;
   telemetryPacketMutexHandle = xSemaphoreCreateMutexStatic( &telemetryPacketMutexBuffer );
   configASSERT(telemetryPacketMutexHandle);
 
   uint8_t peer_addr[6] = ESPNOW_PEER_ADDR_CONF;
   
+/*---- Calibrate Joysticks ----*/
+  ESP_LOGI(TAG, "Calibrating joysticks...");      
+  start_calibration_sequence();
+  ESP_LOGI(TAG, "Done calibrating joysticks...");   
+
 /*---- Start Tasks ----*/
   // Input Read Task
   static input_task_params_t input_task_params = {
@@ -68,6 +89,7 @@ void app_main(void)
                 inputTaskStack,       // Array to use as the task's stack.
                 &inputTaskBuffer );   // Variable to hold the task's data structure.
   configASSERT(inputTaskHandle);
+  delay(20); 
     
   // Data Transmit Task
   static transmit_task_params_t transmit_task_params = {

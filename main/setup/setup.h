@@ -1,4 +1,6 @@
 #pragma once
+#include "drone_common.h"
+#include "freertos/FreeRTOS.h"
 
 /* ESPNOW Config */
 #define ESPNOW_PEER_ADDR_CONF {0x8c, 0xbf, 0xea, 0x8e, 0x51, 0x78}
@@ -18,7 +20,7 @@
 #define SCL_GPIO_CONF 6
 
 /* OLED Config */
-#define OLED_FREQ_CONF (400 * 1000)
+#define OLED_FREQ_CONF (1000 * 1000)
 #define OLED_I2C_ADDR_CONF 0x3D
 #define OLED_H_RES_CONF 128
 #define OLED_V_RES_CONF 64
@@ -40,3 +42,5 @@ void nvs_init(void);
 void wifi_init(void);
 void oled_init(void);
 void i2c_init(void);
+void calibrate_joysticks(void);
+void start_calibration_sequence(void);
