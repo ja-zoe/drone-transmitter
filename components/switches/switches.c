@@ -4,8 +4,6 @@
 #include "esp_err.h"
 #include "setup.h"
 
-static switch_gpio_config_t switch_gpio_config_global;
-
 void configure_gpio_inputs(void) {
   // Configure pulled down gpio pins
   uint64_t pin_mask = (1ULL << PIN_SPDT_L_CONF) |
