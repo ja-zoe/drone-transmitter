@@ -13,12 +13,6 @@ typedef struct {
 } oled_task_params_t;
 
 typedef struct {
-    control_packet_t *control_packet;
-    SemaphoreHandle_t lock;
-    uint8_t *des_addr;
-} transmit_task_params_t;
-
-typedef struct {
   telemetry_packet_t *telemetry_packet;
   SemaphoreHandle_t lock;
   uint8_t *des_addr;

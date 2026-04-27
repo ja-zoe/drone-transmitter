@@ -19,7 +19,19 @@ void inputReadTask( void *pvParameters) {
   while (1) {
     get_switch_states(&control_packet.switches_values);
     get_joysticks_calibrated(&control_packet.joysticks_values);
-
+    ESP_LOGI(TAG, 
+      "Sticks -> T: %4d | Y: %4d | P: %4d | R: %4d  "
+      "Switches -> Arm: %d | L_2T: %d | R_2T: %d | L_3T: %d | R_3T: %d",
+      control_packet.joysticks_values.throttle,
+      control_packet.joysticks_values.yaw,
+      control_packet.joysticks_values.pitch,
+      control_packet.joysticks_values.roll,
+      control_packet.switches_values.arm_disarm,
+      control_packet.switches_values.spdt_l,
+      control_packet.switches_values.spdt_r,
+      control_packet.switches_values.sp3t_l,
+      control_packet.switches_values.sp3t_r
+    );
     if (xSemaphoreTake(data->lock, pdMS_TO_TICKS(3)) == pdFALSE) {
       lock_fail_count++;
       ESP_LOGI(TAG, "Failed to take mutex on attempt %u", lock_fail_count);
