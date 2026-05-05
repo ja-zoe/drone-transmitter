@@ -1,5 +1,6 @@
 #include "esp_now.h"
-#include "setup.h"
+#include "esp_now.h"
+#include "config.h"
 
 static void espnow_send_cb(const esp_now_send_info_t *tx_info, esp_now_send_status_t status) {
   if (status == ESP_NOW_SEND_FAIL) {

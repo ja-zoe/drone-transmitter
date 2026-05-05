@@ -4,7 +4,7 @@
 #include "tasks_common.h"
 #include "esp_log.h"
 #include "esp_now.h"
-#include "setup.h"
+#include "config.h"
 
 static const char *TAG = "Transmit_Task";
 extern control_packet_t control_packet;

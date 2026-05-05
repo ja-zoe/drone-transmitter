@@ -6,7 +6,7 @@
 #include "switches.h"
 #include "tasks_common.h"
 #include "switches.h"
-#include "setup.h"
+#include "config.h"
 #include "espnow.h"
 #include "calibration.h"
 

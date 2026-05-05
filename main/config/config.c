@@ -1,4 +1,4 @@
-#include "setup.h"
+#include "config.h"
 #include "esp_err.h"
 #include "nvs_flash.h"
 #include "esp_wifi.h"
@@ -9,7 +9,7 @@
 #include "esp_log.h"
 #include "tasks_common.h"
 
-static const char *TAG = "Setup";
+static const char *TAG = "Config";
 
 i2c_master_bus_handle_t i2c_bus;
 

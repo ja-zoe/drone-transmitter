@@ -2,7 +2,7 @@
 #include "joysticks.h"
 #include "ads1115.h"
 #include "esp_err.h"
-#include "setup.h"
+#include "config.h"
 #include "drone_common.h"
 
 ads1115_t ads;

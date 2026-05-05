@@ -2,7 +2,7 @@
 #include "switches.h"
 #include "driver/gpio.h"
 #include "esp_err.h"
-#include "setup.h"
+#include "config.h"
 
 void configure_gpio_inputs() {
   // Configure pulled down gpio pins
