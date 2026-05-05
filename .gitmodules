@@ -1,3 +1,0 @@
-[submodule "components/drone_common"]
-	path = components/drone_common
-	url = git@github.com:ja-zoe/drone-software-common.git
