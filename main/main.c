@@ -96,31 +96,31 @@ void app_main(void)
   vTaskDelay(pdMS_TO_TICKS(20)); 
 
   // Data Receive Task
-  TaskHandle_t dataReceiveTaskHandle = NULL;
-  static StaticTask_t dataReceiveTaskBuffer;
-  static StackType_t dataReceiveTaskStack[ RECEIVE_TASK_STACK_SIZE ];
-  dataReceiveTaskHandle = xTaskCreateStatic(
-                dataReceiveTask,          /* Function that implements the task. */
-                "Input-Read-Task",        /* Text name for the task. */
-                RECEIVE_TASK_STACK_SIZE,  /* Number of indexes in the xStack array. */
-                NULL,                     /* Parameter passed into the task. */
-                tskIDLE_PRIORITY,         /* Priority at which the task is created. */
-                dataReceiveTaskStack,     /* Array to use as the task's stack. */
-                &dataReceiveTaskBuffer ); /* Variable to hold the task's data structure. */
-  configASSERT(dataReceiveTaskHandle);
-  vTaskDelay(pdMS_TO_TICKS(20)); 
+  // TaskHandle_t dataReceiveTaskHandle = NULL;
+  // static StaticTask_t dataReceiveTaskBuffer;
+  // static StackType_t dataReceiveTaskStack[ RECEIVE_TASK_STACK_SIZE ];
+  // dataReceiveTaskHandle = xTaskCreateStatic(
+  //               dataReceiveTask,          /* Function that implements the task. */
+  //               "Input-Read-Task",        /* Text name for the task. */
+  //               RECEIVE_TASK_STACK_SIZE,  /* Number of indexes in the xStack array. */
+  //               NULL,                     /* Parameter passed into the task. */
+  //               tskIDLE_PRIORITY,         /* Priority at which the task is created. */
+  //               dataReceiveTaskStack,     /* Array to use as the task's stack. */
+  //               &dataReceiveTaskBuffer ); /* Variable to hold the task's data structure. */
+  // configASSERT(dataReceiveTaskHandle);
+  // vTaskDelay(pdMS_TO_TICKS(20)); 
 
   // OLED Update Task
-  TaskHandle_t oledTaskHandle = NULL;
-  static StaticTask_t oledTaskBuffer;
-  static StackType_t oledTaskStack[ OLED_TASK_STACK_SIZE ];
-  oledTaskHandle = xTaskCreateStatic(
-                oledUpdateTask,       /* Function that implements the task. */
-                "OLED-Update-Task",   /* Text name for the task. */
-                OLED_TASK_STACK_SIZE, /* Number of indexes in the xStack array. */
-                NULL,    /* Parameter passed into the task. */
-                tskIDLE_PRIORITY,     /* Priority at which the task is created. */
-                oledTaskStack,        /* Array to use as the task's stack. */
-                &oledTaskBuffer );    /* Variable to hold the task's data structure. */
-  configASSERT(oledTaskHandle);
+  // TaskHandle_t oledTaskHandle = NULL;
+  // static StaticTask_t oledTaskBuffer;
+  // static StackType_t oledTaskStack[ OLED_TASK_STACK_SIZE ];
+  // oledTaskHandle = xTaskCreateStatic(
+  //               oledUpdateTask,       /* Function that implements the task. */
+  //               "OLED-Update-Task",   /* Text name for the task. */
+  //               OLED_TASK_STACK_SIZE, /* Number of indexes in the xStack array. */
+  //               NULL,    /* Parameter passed into the task. */
+  //               tskIDLE_PRIORITY,     /* Priority at which the task is created. */
+  //               oledTaskStack,        /* Array to use as the task's stack. */
+  //               &oledTaskBuffer );    /* Variable to hold the task's data structure. */
+  // configASSERT(oledTaskHandle);
 }

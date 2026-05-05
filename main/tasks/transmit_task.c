@@ -4,32 +4,31 @@
 #include "tasks_common.h"
 #include "esp_log.h"
 #include "esp_now.h"
+#include "setup.h"
 
 static const char *TAG = "Transmit_Task";
+extern control_packet_t control_packet;
+extern SemaphoreHandle_t controlPacketMutexHandle;
 
 void dataTransmitTask( void *pvParameters ) {
   esp_err_t ret;
 
+  static const uint8_t peer_addr[6] = ESPNOW_PEER_ADDR_CONF;
   static uint32_t lock_fail_count;
-  static control_packet_t control_packet;
+  static control_packet_t control_packet_in;
 
-  transmit_task_params_t *data = (transmit_task_params_t *) pvParameters;
-
-  if (data->lock == NULL) {
-    configASSERT(data->lock);
-  }
-
+  configASSERT(controlPacketMutexHandle);
+  
   while(1){
-    if (xSemaphoreTake(data->lock, pdMS_TO_TICKS(3)) == pdFALSE) {
+    if (xSemaphoreTake(controlPacketMutexHandle, pdMS_TO_TICKS(3)) == pdFALSE) {
       lock_fail_count++;
       ESP_LOGI(TAG, "Failed to take mutex on attempt %u", lock_fail_count);
       continue;
     }
+    control_packet_in = control_packet; // Copy global control packet into internal one
+    xSemaphoreGive(controlPacketMutexHandle);
 
-    control_packet = *(data->control_packet);
-    xSemaphoreGive(data->lock);
-
-    ret = esp_now_send(data->des_addr, (uint8_t *) &control_packet, sizeof(control_packet));
+    ret = esp_now_send(peer_addr, (uint8_t *) &control_packet_in, sizeof(control_packet_in));
     if (ret != ESP_OK) {
       ESP_LOGE(TAG, "Error transmitting control data: %s", esp_err_to_name(ret));
     }
